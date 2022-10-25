@@ -230,7 +230,7 @@ public class Validator {
         } else if (isPassField(component)) {
             value = new String(getPwdField(component).getPassword());
         } else if (isCombo(component)) {
-            value = getCombo(component).getSelectedItem().toString();
+            value = getCombo(component).getSelectedItem()==null?"":getCombo(component).getSelectedItem().toString();
         } else {
             throw new Exception("Este componente no se pudo validar.");
         }
