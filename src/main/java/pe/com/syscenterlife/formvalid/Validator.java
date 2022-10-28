@@ -1,8 +1,12 @@
 package pe.com.syscenterlife.formvalid;
 
+import com.toedter.calendar.JDateChooser;
 import java.awt.Color;
 import java.awt.Font;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,21 +17,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import pe.com.syscenterlife.hint.JHintTextField;
 
-/**
- * Clase Principal para validaciones de formularios
- *
- * @see <br>
- * Acepta las siguientes opciones:
- * <h1>Validación de Formularios Alternativas (Ejemplo:required|number|min:5|max:8):</h1>
- * <ol><li>required</li><li>number</li><li>min</li><li>max</li>
- * <li>username</li><li>email</li><li>phone</li>
- * <li>password</li><li>date</li>
- * </ol>
- *
- * @see <a href = "https://github.com/davidmp" />Aqui Github</a>
- * 
- */
+
 public class Validator {
 
     private Border defaultBorder = new JTextField().getBorder();
@@ -49,7 +41,7 @@ public class Validator {
             for (String rule : rules) {
                 String ruleStr = getRule(rule), value = getValue(component);
                 boolean ruleError = false;
-                int ruleVal = 0;
+                String ruleVal = "0";
                 switch (ruleStr) {
                     case "required":
                         ruleError = isNull(value);
@@ -58,12 +50,12 @@ public class Validator {
                         ruleError = isntNumber(value);
                         break;
                     case "min":
-                        int min = ruleVal = getRuleValue(rule);
-                        ruleError = length(value, min, MIN);
+                        String min = ruleVal = getRuleValueStr(rule);
+                        ruleError = length(value, Integer.parseInt(min), MIN);
                         break;
                     case "max":
-                        int max = ruleVal = getRuleValue(rule);
-                        ruleError = length(value, max, MAX);
+                        String max = ruleVal = getRuleValueStr(rule);
+                        ruleError = length(value, Integer.parseInt(max), MAX);
                         break;
                     case "username":
                         String USERNAME_REGEX = "^[a-zA-Z0-9_]+$";
@@ -89,14 +81,30 @@ public class Validator {
                         Pattern PASSWORD_PATTERN =Pattern.compile(PASSWORD_REGEX);
                         ruleError = !PASSWORD_PATTERN.matcher(value).matches();
                         break;
-                    case "date":
+                    case "date":                        
                         String DATE_REGEX =
                                 "^(?=\\d{2}([-.,\\/])\\d{2}\\1\\d{4}$)(?:0[1-9]|1\\d|[2][0-8]|29(?!.02."
                                 + "(?!(?!(?:[02468][1-35-79]|[13579][0-13-57-9])00)\\d{2}"
                                 + "(?:[02468][048]|[13579][26])))|30(?!.02)|31"
                                 + "(?=.(?:0[13578]|10|12))).(?:0[1-9]|1[012]).\\d{4}$";
-                        Pattern DATE_PATTERN = Pattern.compile(DATE_REGEX);
+                        Pattern DATE_PATTERN = Pattern.compile(DATE_REGEX);                                     
                         ruleError = !DATE_PATTERN.matcher(value).matches();
+                        break;
+                    case "datef":
+                        String formatDate = ruleVal = getRuleValueStr(rule);
+                        String DATE_REGEXF =
+                                "^(?=\\d{2}([-.,\\/])\\d{2}\\1\\d{4}$)(?:0[1-9]|1\\d|[2][0-8]|29(?!.02."
+                                + "(?!(?!(?:[02468][1-35-79]|[13579][0-13-57-9])00)\\d{2}"
+                                + "(?:[02468][048]|[13579][26])))|30(?!.02)|31"
+                                + "(?=.(?:0[13578]|10|12))).(?:0[1-9]|1[012]).\\d{4}$";
+                        Pattern DATE_PATTERNF = Pattern.compile(DATE_REGEXF);
+                        DateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
+                        if(!value.equals("")){
+                                Date dv=formatter.parse(value);
+                                DateFormat formatter1 = new SimpleDateFormat(formatDate);
+                                value=value.equals("")?"":formatter1.format(dv);
+                        }                        
+                        ruleError = !DATE_PATTERNF.matcher(value).matches();
                         break;
                     default:
                         throw new Exception("Regla de validación : " + rule + " aún no es compatible.");
@@ -144,6 +152,12 @@ public class Validator {
     private boolean isPassField(Object component) {
         return component.getClass() == JPasswordField.class;
     }
+    private boolean isHintTextComponent(Object component) {
+        return component.getClass()==JHintTextField.class;
+    }
+    private boolean isJDateChooserComponent(Object component) {
+        return component.getClass()==JDateChooser.class;
+    }
 
     private boolean isNull(String value) {
         return (value == null || value.equals(""));
@@ -183,6 +197,12 @@ public class Validator {
     private JTextField getTextField(Object component) {
         return (JTextField) component;
     }
+    private JHintTextField getHintTextField(Object component) {
+        return (JHintTextField) component;
+    }
+    private JDateChooser getJDateChooser(Object component) {
+        return (JDateChooser) component;
+    }
 
     private JComboBox getCombo(Object component) {
         return (JComboBox) component;
@@ -196,11 +216,18 @@ public class Validator {
         return (rule.contains(":") ? rule.split(":")[0] : rule);
     }
 
-    private int getRuleValue(String rule) throws Exception {
+    /*private int getRuleValue(String rule) throws Exception {
         if (isntNumber(rule) && rule.contains(":")) {
             return Integer.parseInt(rule.split(":")[1]);
         } else {
             throw new Exception("Regla del validador'" + rule + "' requiere un valor entero correcto para la validación. Ex: " + rule + ":5.");
+        }
+    }*/
+    private String getRuleValueStr(String rule) throws Exception {
+        if (isntNumber(rule) && rule.contains(":")) {
+            return rule.split(":")[1];
+        } else {
+            throw new Exception("Regla del validador'" + rule + "' requiere un valor formato correcto. Ex: " + rule + ":5.");
         }
     }
 
@@ -216,6 +243,18 @@ public class Validator {
                 getCombo(component).setBorder((isError) ? getErrorBorder() : getDefaultBorder());
             } else if (isPassField(component)) {
                 getPwdField(component).setBorder((isError) ? getErrorBorder() : getDefaultBorder());
+            }else if (isHintTextComponent(component)){
+                getHintTextField(component).setBorder((isError) ? getErrorBorder() : getDefaultBorder());
+                getHintTextField(component).setToolTipText((isError) ? "<html><div style='margin:0 -3 0 -3; padding: 0 3 0 3;'>"+msgx+"</div></html>" : "");
+                UIManager.put("ToolTip.background", Color.ORANGE);
+                UIManager.put("ToolTip.foreground", Color.BLACK);
+                UIManager.put("ToolTip.font", new Font("Arial", Font.BOLD, 14));              
+            }else if(isJDateChooserComponent(component)){
+                getJDateChooser(component).setBorder((isError) ? getErrorBorder() : getDefaultBorder());
+                getJDateChooser(component).setToolTipText((isError) ? "<html><div style='margin:0 -3 0 -3; padding: 0 3 0 3;'>"+msgx+"</div></html>" : "");
+                UIManager.put("ToolTip.background", Color.ORANGE);
+                UIManager.put("ToolTip.foreground", Color.BLACK);
+                UIManager.put("ToolTip.font", new Font("Arial", Font.BOLD, 14));             
             }
         }
         if (isError) {
@@ -230,8 +269,13 @@ public class Validator {
         } else if (isPassField(component)) {
             value = new String(getPwdField(component).getPassword());
         } else if (isCombo(component)) {
-            value = getCombo(component).getSelectedItem().toString();
-        } else {
+            value = getCombo(component).getSelectedItem()==null?"":getCombo(component).getSelectedItem().toString();
+        }else if(isHintTextComponent(component)){
+            value = getHintTextField(component).getHinText().equals(getHintTextField(component).getText())?"":getHintTextField(component).getText();
+        } else if(isJDateChooserComponent(component)){   
+            DateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
+            value = getJDateChooser(component).getDate()==null?"":formatter.format(getJDateChooser(component).getDate());
+        }else {
             throw new Exception("Este componente no se pudo validar.");
         }
         return value;
@@ -255,11 +299,12 @@ public class Validator {
         map.put("phone", ""+fieldName+" acepta un numero con o sin guiones");
         map.put("email", ""+fieldName+" debe seguir un formato similar email@xx.xx ");
         map.put("password", ""+fieldName+" requiere de 8-16 caracteres con al menos un dígito, una letra minúscula, una letra mayúscula, un carácter especial sin espacios en blanco");
-        map.put("date", ""+fieldName+" requiere en el formato dd-mm-yyyy considere que tiene  soporte para años bisiestos");        
+        map.put("date", ""+fieldName+" requiere en el formato dd-MM-yyyy considere que tiene  soporte para años bisiestos");        
+        map.put("datef", ""+fieldName+" requiere en el formato dd-MM-yyyy o dd/MM/yyyy considere que tiene  soporte para años bisiestos");        
         return map;
     }
 
-    private String getMessage(String rule, String field, int value) throws Exception {
+    private String getMessage(String rule, String field, String value) throws Exception {
         Map<String, String> msgs = getErrorMessages().isEmpty() ? getDefaultMessages() : getErrorMessages();
         if(msgs.get(rule) == null || msgs.get(rule).equals("")){
             throw new Exception("No hay mensaje definido para la regla de validación : "+rule+".");
@@ -267,11 +312,13 @@ public class Validator {
         return replaceShortcodes(msgs.get(rule), field, value);
     }
 
-    private String replaceShortcodes(String pureMsg, String field, int value) {
+    private String replaceShortcodes(String pureMsg, String field, String value) {
         pureMsg = pureMsg.replaceAll(fieldName, field);
         pureMsg = pureMsg.replaceAll(ruleValue, value + "");
         return pureMsg;
     }
+    
+
 
     public List getErrors() {
         return errors;
