@@ -275,7 +275,7 @@ public class Validator {
         } else if(isJDateChooserComponent(component)){   
             DateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
             value = getJDateChooser(component).getDate()==null?"":formatter.format(getJDateChooser(component).getDate());
-        }else {
+        } else {
             throw new Exception("Este componente no se pudo validar.");
         }
         return value;
