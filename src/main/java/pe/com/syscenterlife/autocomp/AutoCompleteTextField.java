@@ -1,5 +1,5 @@
 
-package pe.com.syscenterlife.hint.autocomp;
+package pe.com.syscenterlife.autocomp;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -18,7 +18,10 @@ import javax.swing.event.DocumentListener;
 
 
 public class AutoCompleteTextField {
-    public static ModeloDataAutocomplet dataGetReturnet;
+   public  static ModeloDataAutocomplet dataGetReturnet;
+
+ 
+   
     private static boolean isAdjusting(JComboBox cbInput) {
         if (cbInput.getClientProperty("is_adjusting") instanceof Boolean) {
             return (Boolean) cbInput.getClientProperty("is_adjusting");
@@ -29,9 +32,20 @@ public class AutoCompleteTextField {
     private static void setAdjusting(JComboBox cbInput, boolean adjusting) {
         cbInput.putClientProperty("is_adjusting", adjusting);
     }
-
-    public static void setupAutoComplete(final JTextField txtInput, final List<ModeloDataAutocomplet> items) {
-        String valor="";
+    /**
+     * Clase Principal para AutoComplete
+     *
+     * @see <br>
+     * AutoCompleteTextField.setupAutoComplete(txtInput, items, TIPE_DISPLAY)
+     * <b>TIPE_DISPLAY=</b>
+     * <ol><li>ID</li><li>NAME</li><li>OTHER</li>
+     * </ol>
+     *
+     * @see <a href = "https://github.com/davidmp" />Aqui Github</a>
+     * 
+     */
+    public static void setupAutoComplete(final JTextField txtInput, final List<ModeloDataAutocomplet> items,String tipe_display) {
+        ModeloDataAutocomplet.TIPE_DISPLAY=tipe_display;
         final DefaultComboBoxModel model = new DefaultComboBoxModel();
         final JComboBox cbInput = new JComboBox(model) {
             public Dimension getPreferredSize() {
@@ -60,7 +74,7 @@ public class AutoCompleteTextField {
             
             @Override
             public void mouseClicked(MouseEvent e) {
-                System.out.println("VER:"+e.getClickCount());
+                //System.out.println("VER:"+e.getClickCount());
                  if(cbInput.getSelectedItem()!=null){
                         txtInput.setText(cbInput.getSelectedItem().toString());//Ojo
                         dataGetReturnet=new ModeloDataAutocomplet();
@@ -122,11 +136,21 @@ public class AutoCompleteTextField {
                 setAdjusting(cbInput, true);
                 model.removeAllElements();
                 String input = txtInput.getText();
+                //System.out.println("RR:"+ModeloDataAutocomplet.TIPE_DISPLAY);
                 if (!input.isEmpty()) {
                     for (ModeloDataAutocomplet item : items) {
-                        if (item.nombreDysplay.toLowerCase().startsWith(input.toLowerCase())) {
-                            model.addElement(item);
+                        switch (ModeloDataAutocomplet.TIPE_DISPLAY){
+                            case "ID": if (item.idx.toLowerCase().startsWith(input.toLowerCase())) {
+                                    model.addElement(item);
+                                } break;
+                            case "OTHER": if (item.otherData.toLowerCase().startsWith(input.toLowerCase())) {
+                                    model.addElement(item);
+                                } break;
+                            default:  if (item.nombreDysplay.toLowerCase().startsWith(input.toLowerCase())) {
+                                    model.addElement(item);
+                                } break;
                         }
+
                     }
                 }
                 cbInput.setPopupVisible(model.getSize() > 0);
