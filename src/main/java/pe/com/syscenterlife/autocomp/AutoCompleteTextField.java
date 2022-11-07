@@ -35,14 +35,15 @@ public class AutoCompleteTextField {
     /**
      * Clase Principal para AutoComplete
      *
+     * @param txtInput
+     * @param items
+     * @param tipe_display <ol><li>ID</li><li>NAME</li><li>OTHER</li></ol>
      * @see <br>
      * AutoCompleteTextField.setupAutoComplete(txtInput, items, TIPE_DISPLAY)
      * <b>TIPE_DISPLAY=</b>
      * <ol><li>ID</li><li>NAME</li><li>OTHER</li>
      * </ol>
      *
-     * @see <a href = "https://github.com/davidmp" />Aqui Github</a>
-     * 
      */
     public static void setupAutoComplete(final JTextField txtInput, final List<ModeloDataAutocomplet> items,String tipe_display) {
         ModeloDataAutocomplet.TIPE_DISPLAY=tipe_display;
