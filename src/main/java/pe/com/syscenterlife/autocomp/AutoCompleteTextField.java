@@ -70,9 +70,7 @@ public class AutoCompleteTextField {
             }
         });
         
-        cbInput.addMouseListener(new MouseAdapter() {
-            
-            
+        /*cbInput.addMouseListener(new MouseAdapter() {                        
             @Override
             public void mouseClicked(MouseEvent e) {
                 //System.out.println("VER:"+e.getClickCount());
@@ -85,8 +83,36 @@ public class AutoCompleteTextField {
                         cbInput.setPopupVisible(false);
                 }
             }            
-        });
+        });*/
+        txtInput.addMouseListener(new MouseAdapter() {                         
+            @Override
+            public void mouseClicked(MouseEvent e) {
+               // System.out.println("VER:");
+                 if(cbInput.getSelectedItem()!=null){
+                        //System.out.println("No entra"+((ModeloDataAutocomplet)cbInput.getSelectedItem()).getIdx());
+                        txtInput.setText(cbInput.getSelectedItem().toString());//Ojo
+                        dataGetReturnet=new ModeloDataAutocomplet();
+                        dataGetReturnet.setIdx(((ModeloDataAutocomplet)cbInput.getSelectedItem()).getIdx());
+                        dataGetReturnet.setNombreDysplay(((ModeloDataAutocomplet)cbInput.getSelectedItem()).getNombreDysplay());
+                        dataGetReturnet.setOtherData(((ModeloDataAutocomplet)cbInput.getSelectedItem()).getOtherData());
+                        cbInput.setPopupVisible(false);
+                }
+            }
 
+            /*@Override
+            public void mouseEntered(MouseEvent e) {
+               // System.out.println("VER:");
+                 if(cbInput.getSelectedItem()!=null){
+                        //System.out.println("No entra"+((ModeloDataAutocomplet)cbInput.getSelectedItem()).getIdx());
+                        txtInput.setText(cbInput.getSelectedItem().toString());//Ojo
+                        dataGetReturnet=new ModeloDataAutocomplet();
+                        dataGetReturnet.setIdx(((ModeloDataAutocomplet)cbInput.getSelectedItem()).getIdx());
+                        dataGetReturnet.setNombreDysplay(((ModeloDataAutocomplet)cbInput.getSelectedItem()).getNombreDysplay());
+                        dataGetReturnet.setOtherData(((ModeloDataAutocomplet)cbInput.getSelectedItem()).getOtherData());
+                        cbInput.setPopupVisible(false);
+                }
+            }*/
+        });
         txtInput.addKeyListener(new KeyAdapter() {
 
             @Override
